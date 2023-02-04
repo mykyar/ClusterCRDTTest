@@ -24,5 +24,6 @@ libraryDependencies ++= Vector(
   "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
   "com.typesafe.akka" %% "akka-cluster" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion
+  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
+  "com.github.tototoshi" %% "scala-csv" % "1.3.10"
 ) ++ logging ++ testDeps

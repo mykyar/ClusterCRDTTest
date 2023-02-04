@@ -26,7 +26,7 @@ class PowerUnit(unitId: String) extends Actor with Timers {
 
 object PowerUnit {
   case class UnitState(id: String, actualPower: Int)
-  case class StateUpdate(actualPower: Int = Random.nextInt(5))
+  case class StateUpdate(actualPower: Int = Random.nextInt(20))
   case object NotifyGridTimer
 
   def apply(id: String)(implicit system: ActorSystem): ActorRef =
