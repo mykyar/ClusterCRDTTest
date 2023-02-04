@@ -3,6 +3,7 @@ package asp
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.cluster.ddata.Replicator.{Changed, Subscribe, Update, UpdateSuccess, WriteMajority}
 import akka.cluster.ddata.{DistributedData, LWWMap, LWWMapKey, SelfUniqueAddress}
+import asp.Auditor.Audit
 import asp.PowerGrid.{GridShape, GridState, OfferPower, OfferPowerAck, UnitId}
 import asp.PowerGridExt.GridStateOps
 import asp.PowerUnit.UnitState
@@ -10,7 +11,8 @@ import asp.PowerUnit.UnitState
 import scala.annotation.tailrec
 import scala.concurrent.duration.DurationInt
 
-class PowerGrid(id: String, nominalPower: Int, minors: Seq[UnitId]) extends Actor with ActorLogging {
+
+class PowerGrid(id: String, nominalPower: Int, minors: Seq[UnitId], auditor: ActorRef) extends Actor with ActorLogging {
 
   private val replicator = DistributedData(context.system).replicator
   implicit val node: SelfUniqueAddress = DistributedData(context.system).selfUniqueAddress
@@ -30,7 +32,9 @@ class PowerGrid(id: String, nominalPower: Int, minors: Seq[UnitId]) extends Acto
 
       val newState = state.copy(units = state.units + (unitState.id -> unitState))
 
-      log.info(s"[$id] new state of power grid: ${newState.actualPower}")
+      log.info(s"[$id] new state of power grid: actual: ${newState.actualPower}, nominal: ${newState.nominalPower}, delta: ${newState.deltaPower}")
+
+      auditor ! Audit(state.nominalPower, state.actualPower, System.currentTimeMillis())
 
       val writeMajority = WriteMajority(timeout = 5.seconds)
 
@@ -98,8 +102,8 @@ object PowerGrid {
   case class OfferPower(lendPower: Int)
   case class OfferPowerAck(borrowPower: Int)
 
-  def start(id: String, gridNominalPower: Int, units: Seq[UnitId])(implicit system: ActorSystem): ActorRef =
-    system.actorOf(Props(classOf[PowerGrid], id, gridNominalPower, units), id)
+  def start(id: String, gridNominalPower: Int, units: Seq[UnitId], auditor: ActorRef)(implicit system: ActorSystem): ActorRef =
+    system.actorOf(Props(classOf[PowerGrid], id, gridNominalPower, units, auditor), id)
 }
 
 object PowerGridExt {

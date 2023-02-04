@@ -22,7 +22,7 @@ object Main extends App {
 
   val log = system.log
 
-  PowerGrid.start(s"${args(0)}", 25, Seq("s1", "s2"))
+  PowerGrid.start(s"${args(0)}", 25, Seq("s1", "s2"), Auditor(s"${args(0)}"))
 
 //  TestActor.start
 
