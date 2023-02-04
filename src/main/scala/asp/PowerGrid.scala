@@ -11,6 +11,7 @@ import asp.PowerUnit.UnitState
 import scala.annotation.tailrec
 import scala.concurrent.duration.DurationInt
 
+
 class PowerGrid(id: String, nominalPower: Int, minors: Seq[UnitId], auditor: ActorRef) extends Actor with ActorLogging {
 
   private val replicator = DistributedData(context.system).replicator
